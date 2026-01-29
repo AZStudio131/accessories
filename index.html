@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kinetic | Audio & Tech</title>
+    <style>
+        /* CSS RESET & BASE STYLES */
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            background-color: #f7f4ef;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* NAVIGATION & ROUTING LOGIC */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 8%;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            gap: 20px;
+        }
+        .logo { font-weight: 800; font-size: 24px; letter-spacing: 2px; cursor: pointer; flex-shrink: 0; }
+        
+        /* SEARCH BAR STYLES */
+        .search-wrap {
+            flex-grow: 1;
+            max-width: 400px;
+        }
+        .search-wrap input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid #eee;
+            background: #f9f9f9;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .search-wrap input:focus {
+            background: #fff;
+            border-color: #e69d45;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        nav { display: flex; gap: 25px; flex-shrink: 0; }
+        nav a {
+            text-decoration: none;
+            color: #666;
+            font-size: 13px;
+            font-weight: 600;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+        nav a:hover { color: #e69d45; }
+
+        .menu-btn {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+        .menu-btn span { width: 20px; height: 2px; background: #333; }
+
+        /* HERO SECTION */
+        .hero {
+            display: flex;
+            margin: 30px 8%;
+            background: linear-gradient(90deg, #e69d45 45%, #333 45%);
+            border-radius: 20px;
+            overflow: hidden;
+            min-height: 350px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .hero-text {
+            flex: 1; padding: 60px; color: white;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .hero-text h1 { font-size: 56px; line-height: 0.9; margin-bottom: 15px; font-weight: 900; }
+        .shop-btn {
+            background: #fff; color: #333; border: none; padding: 12px 25px;
+            width: fit-content; font-weight: bold; border-radius: 4px; cursor: pointer;
+        }
+        .hero-visual {
+            flex: 1; background: url('ads1.png') center/contain no-repeat;
+        }
+
+        /* PRODUCT GRID */
+        .section-title { margin: 40px 8% 20px; font-size: 22px; font-weight: 700; }
+        .product-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px; margin: 0 8% 50px;
+        }
+        .card {
+            background: #fff; padding: 25px; border-radius: 15px;
+            text-align: center; position: relative; transition: 0.3s; cursor: pointer;
+        }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .card img { width: 100%; height: 180px; object-fit: contain; margin-bottom: 20px; }
+        .price { color: #e69d45; font-weight: bold; font-size: 18px; margin-bottom: 15px; }
+        .add-btn {
+            background: #333; color: white; border: none; width: 100%;
+            padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer;
+        }
+
+        /* PRODUCT DETAIL PAGE & GALLERY */
+        .detail-view {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 50px; margin: 40px 8%; background: #fff;
+            padding: 50px; border-radius: 20px;
+        }
+        .gallery-container { display: flex; flex-direction: column; gap: 15px; }
+        .detail-view img#p-img { width: 100%; height: 400px; object-fit: contain; border-radius: 10px; background: #f9f9f9; }
+        .thumbnail-bar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .thumb { 
+            width: 70px; height: 70px; object-fit: contain; border-radius: 8px; 
+            cursor: pointer; border: 2px solid #eee; transition: 0.2s; background: #fff;
+        }
+        .thumb:hover, .thumb.active { border-color: #e69d45; }
+        .detail-info h2 { font-size: 32px; margin-top: 0; }
+        .detail-info p { color: #666; margin: 20px 0; }
+
+        /* STATS SECTION */
+        .stats-container {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            margin: 40px 8%; background: #fff; border: 1px solid #eee; border-radius: 8px;
+        }
+        .stat-item { padding: 40px 20px; text-align: center; border-right: 1px solid #eee; }
+        .stat-item:last-child { border-right: none; }
+        .stat-item h2 { color: #e69d45; font-size: 32px; margin: 0; }
+
+        /* FOOTER */
+        footer { background: #222; color: #bbb; padding: 60px 8% 30px; margin-top: 50px; }
+        .footer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 50px; }
+        .copyright { border-top: 1px solid #333; padding-top: 20px; margin-top: 40px; font-size: 11px; display: flex; justify-content: space-between; }
+
+        /* ORDER & CONTACT FORM */
+        .order-form, .content-section {
+            max-width: 600px; margin: 40px auto; background: white;
+            padding: 40px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-weight: bold; font-size: 12px; margin-bottom: 5px; color: #888; text-transform: uppercase; }
+        .input-group input, .input-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; }
+        .summary-box { background: #fdfaf4; padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px dashed #e69d45; }
+
+        /* --- RESPONSIVE MOBILE FIXES --- */
+        @media (max-width: 768px) {
+            header { padding: 15px 5%; flex-wrap: wrap; }
+            
+            .logo { order: 1; }
+            .menu-btn { display: flex; order: 2; }
+            
+            /* Make search wrap take 100% width on mobile and appear below logo/menu */
+            .search-wrap { 
+                order: 3; 
+                flex-basis: 100%; 
+                max-width: none; 
+                margin-top: 10px; 
+            }
+
+            nav {
+                display: none;
+                position: absolute;
+                top: 100%; left: 0; width: 100%;
+                flex-direction: column; background: #fff;
+                padding: 20px; gap: 15px; border-bottom: 1px solid #eee;
+            }
+            nav.open { display: flex; }
+
+            .hero { flex-direction: column; margin: 15px 5%; min-height: auto; background: #333; }
+            .hero-text { padding: 40px 30px; order: 2; text-align: center; align-items: center; }
+            .hero-text h1 { font-size: 40px; }
+            .hero-visual { height: 200px; width: 100%; order: 1; background-color: #e69d45; }
+
+            .section-title { margin: 30px 5% 15px; }
+            .product-grid { grid-template-columns: 1fr 1fr; margin: 0 5% 30px; gap: 15px; }
+            .card { padding: 15px; }
+            .card img { height: 120px; margin-bottom: 10px; }
+
+            .detail-view { grid-template-columns: 1fr; margin: 20px 5%; padding: 25px; gap: 30px; }
+            .stats-container { grid-template-columns: 1fr 1fr; margin: 20px 5%; }
+            .order-form { margin: 20px 5%; padding: 25px; }
+            .footer-grid { grid-template-columns: 1fr; gap: 30px; }
+        }
+
+        @media (max-width: 400px) {
+            .product-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo" onclick="navigateTo('home')">KINETIC</div>
+        
+        <div class="search-wrap">
+            <input type="text" id="mainSearch" placeholder="Search products..." onkeyup="filterProducts()">
+        </div>
+
+        <button class="menu-btn" onclick="document.querySelector('nav').classList.toggle('open')">
+            <span></span><span></span><span></span>
+        </button>
+        <nav onclick="this.classList.remove('open')">
+            <a onclick="navigateTo('home')">HOME</a>
+            <a onclick="navigateTo('store')">STORE</a>
+            <a onclick="navigateTo('about')">ABOUT</a>
+            <a onclick="navigateTo('contact')">CONTACT</a>
+        </nav>
+    </header>
+
+    <div id="home" class="page active">
+        <section class="hero">
+            <div class="hero-text">
+                <h1>PURE <br> SOUND.</h1>
+                <p>Up to 30% off our Titanium Series.</p>
+                <button class="shop-btn" onclick="viewProduct('Over-Ear Studio 473B', '$249.00', ['ads1.png', 'item1.webp', 'item2.jpg'], 'Professional studio monitoring with ultra-wide frequency response.')">SHOP DEAL</button>
+            </div>
+            <div class="hero-visual"></div>
+        </section>
+
+        <h2 class="section-title">Trending Now</h2>
+        <div class="product-grid">
+            <div class="card" onclick="viewProduct('Kinetic Buds Pro', '$129.00', ['item1.webp', 'item1-2.png', 'item1-3.png'], 'High-fidelity wireless audio.')">
+                <img src="item1.webp" alt="Earbuds">
+                <h3>Kinetic Buds Pro</h3>
+                <p class="price">$129.00</p>
+                <button class="add-btn">VIEW DETAILS</button>
+            </div>
+            <div class="card" onclick="viewProduct('Titan Series Watch', '$249.00', ['item2.jpg', 'item2-2.png', 'item2-3.webp'], 'Advanced health monitoring.')">
+                <img src="item2.jpg" alt="Watch">
+                <h3>Titan Series Watch</h3>
+                <p class="price">$249.00</p>
+                <button class="add-btn">VIEW DETAILS</button>
+            </div>
+            <div class="card" onclick="viewProduct('Over-Ear Studio 473B', '$249.00', ['ads1.png', 'ads2.png', 'ads3.png'], 'Professional studio monitoring.')">
+                <img src="ads1.png" alt="Headphones">
+                <h3>Over-Ear Studio 473B</h3>
+                <p class="price">$249.00</p>
+                <button class="add-btn">VIEW DETAILS</button>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-item"><h2>300%</h2><p>Enhanced Depth</p></div>
+            <div class="stat-item"><h2>1.5%</h2><p>Low Distortion</p></div>
+            <div class="stat-item"><h2>2.7%</h2><p>Efficiency</p></div>
+            <div class="stat-item"><h2>1.6%</h2><p>Response</p></div>
+        </div>
+    </div>
+
+    <div id="store" class="page">
+        <h2 class="section-title">Store</h2>
+        <div class="product-grid">
+             <div class="card" onclick="viewProduct('Carbon Case', '$49.00', ['item1.webp', 'item1-2.png'], 'Protective case.')"><img src="item1.webp"><h3>Carbon Case</h3><p class="price">$49.00</p><button class="add-btn">VIEW DETAILS</button></div>
+             <div class="card" onclick="viewProduct('Titan Charger', '$39.00', ['item2.jpg', 'item2-2.png'], 'Fast dock.')"><img src="item2.jpg"><h3>Titan Charger</h3><p class="price">$39.00</p><button class="add-btn">VIEW DETAILS</button></div>
+             <div class="card" onclick="viewProduct('Studio Mic', '$199.00', ['ads1.png', 'ads2.png'], 'Pro microphone.')"><img src="ads1.png"><h3>Studio Mic</h3><p class="price">$199.00</p><button class="add-btn">VIEW DETAILS</button></div>
+        </div>
+    </div>
+
+    <div id="about" class="page">
+        <div class="content-section">
+            <h2>Our Story</h2>
+            <p>We craft premium audio hardware designed for the modern listener.</p>
+        </div>
+    </div>
+
+    <div id="contact" class="page">
+        <div class="order-form">
+            <h2>Contact Us</h2>
+            <form onsubmit="event.preventDefault(); alert('Sent!'); navigateTo('home')">
+                <div class="input-group"><label>Email</label><input type="email" required></div>
+                <div class="input-group"><label>Message</label><textarea rows="3" required></textarea></div>
+                <button type="submit" class="add-btn">SEND</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="product-detail" class="page">
+        <div class="detail-view">
+            <div class="gallery-container">
+                <img id="p-img" src="" alt="Product">
+                <div class="thumbnail-bar" id="p-gallery"></div>
+            </div>
+            <div class="detail-info">
+                <h2 id="p-title"></h2>
+                <h3 class="price" id="p-price"></h3>
+                <p id="p-desc"></p>
+                <button class="add-btn" style="background: #e69d45;" onclick="navigateTo('order')">ORDER NOW</button>
+                <p onclick="navigateTo('home')" style="cursor:pointer; margin-top:20px;">← Back</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="order" class="page">
+        <div class="order-form">
+            <h2>Finalize Order</h2>
+            <div class="summary-box">
+                <strong id="summary-name"></strong> - <span id="summary-price"></span>
+            </div>
+            <form onsubmit="event.preventDefault(); alert('Order Successfully Placed!'); navigateTo('home')">
+                <div class="input-group"><label>Full Name</label><input type="text" placeholder="John Doe" required></div>
+                <div class="input-group"><label>Email Address</label><input type="email" placeholder="john@example.com" required></div>
+                <div class="input-group"><label>Phone Number</label><input type="tel" placeholder="+1 234 567 890" required></div>
+                <div class="input-group"><label>Full Address</label><textarea rows="2" placeholder="Street name, Apartment, City" required></textarea></div>
+                <div class="input-group"><label>Postal Code</label><input type="text" placeholder="90210" required></div>
+                <button type="submit" class="add-btn" style="background: #e69d45; margin-top: 10px;">PLACE SECURE ORDER</button>
+            </form>
+            <p onclick="navigateTo('home')" style="text-align:center; cursor:pointer; font-size:12px; color:#999; margin-top:20px;">Cancel and Return Home</p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-grid">
+            <div><h4>About Kinetic</h4><p>Premium audio hardware.</p></div>
+            <div><h4>Customer Care</h4><p>Available 24/7.</p></div>
+            <div><h4>Latest Tech</h4><p>Spatial audio mapping.</p></div>
+        </div>
+        <div class="copyright">
+            <span>&copy; 2026 KINETIC TECH.</span>
+            <span>DESIGNED BY AI PEER</span>
+        </div>
+    </footer>
+
+    <script>
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            document.getElementById('mainSearch').value = "";
+            filterProducts();
+            window.scrollTo(0,0);
+        }
+
+        function filterProducts() {
+            let query = document.getElementById('mainSearch').value.toLowerCase();
+            let activePage = document.querySelector('.page.active');
+            if (!activePage) return;
+            let cards = activePage.querySelectorAll('.card');
+
+            cards.forEach(card => {
+                let title = card.querySelector('h3').innerText.toLowerCase();
+                if (title.includes(query)) {
+                    card.style.display = "block";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+
+        function viewProduct(name, price, imgList, desc) {
+            document.getElementById('p-title').innerText = name;
+            document.getElementById('p-price').innerText = price;
+            document.getElementById('p-desc').innerText = desc;
+            const mainImg = document.getElementById('p-img');
+            mainImg.src = imgList[0];
+            document.getElementById('summary-name').innerText = name;
+            document.getElementById('summary-price').innerText = price;
+            const gallery = document.getElementById('p-gallery');
+            gallery.innerHTML = ''; 
+            imgList.forEach((imgSrc, index) => {
+                let thumb = document.createElement('img');
+                thumb.src = imgSrc;
+                thumb.className = 'thumb';
+                if(index === 0) thumb.classList.add('active');
+                thumb.onclick = function() { 
+                    mainImg.src = this.src; 
+                    document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                };
+                gallery.appendChild(thumb);
+            });
+            navigateTo('product-detail');
+        }
+    </script>
+</body>
+</html>
