@@ -324,7 +324,7 @@
                 <div class="input-group"><label>Phone Number</label><input type="tel" id="cust_phone" placeholder="+1 234 567 890" required></div>
                 <div class="input-group"><label>Full Address</label><textarea id="cust_address" rows="2" placeholder="Street name, Apartment, City" required></textarea></div>
                 <div class="input-group"><label>Postal Code</label><input type="text" id="cust_zip" placeholder="90210" required></div>
-                <button type="submit" class="add-btn" style="background: #e69d45; margin-top: 10px;">PLACE SECURE ORDER</button>
+                <button type="submit" class="add-btn" id="submitOrderBtn" style="background: #e69d45; margin-top: 10px;">PLACE SECURE ORDER</button>
             </form>
             <p onclick="navigateTo('home')" style="text-align:center; cursor:pointer; font-size:12px; color:#999; margin-top:20px;">Cancel and Return Home</p>
         </div>
@@ -343,6 +343,8 @@
     </footer>
 
     <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwFbhNjjXNuwica0DUitLlzT0U_pYNbMT1kt4f1zfgG9jkxzTtMMkRdABOp7LpOEQRRRg/exec";
+
         function navigateTo(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
@@ -392,29 +394,42 @@
             navigateTo('product-detail');
         }
 
-        // --- NEW LOGIC TO STORE DATA (Doesn't affect design) ---
+        // --- UPDATED CLOUD SYNC LOGIC ---
         function saveCustomerData(event) {
             event.preventDefault();
             
+            const submitBtn = document.getElementById('submitOrderBtn');
+            submitBtn.innerText = "SINCING TO CLOUD...";
+            submitBtn.disabled = true;
+
             const newOrder = {
-                id: Date.now(),
                 item: document.getElementById('summary-name').innerText,
                 price: document.getElementById('summary-price').innerText,
                 name: document.getElementById('cust_name').value,
                 email: document.getElementById('cust_email').value,
                 phone: document.getElementById('cust_phone').value,
                 address: document.getElementById('cust_address').value,
-                zip: document.getElementById('cust_zip').value,
-                date: new Date().toLocaleString()
+                zip: document.getElementById('cust_zip').value
             };
 
-            let orders = JSON.parse(localStorage.getItem('kinetic_orders') || '[]');
-            orders.push(newOrder);
-            localStorage.setItem('kinetic_orders', JSON.stringify(orders));
-
-            alert('Order Successfully Placed!');
-            document.getElementById('purchaseForm').reset();
-            navigateTo('home');
+            // Sync with Google Sheets
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify(newOrder)
+            })
+            .then(() => {
+                alert('Order Successfully Placed! It will show on the dashboard.');
+                document.getElementById('purchaseForm').reset();
+                submitBtn.innerText = "PLACE SECURE ORDER";
+                submitBtn.disabled = false;
+                navigateTo('home');
+            })
+            .catch(err => {
+                alert("Cloud Sync Failed. Please try again.");
+                submitBtn.disabled = false;
+                submitBtn.innerText = "PLACE SECURE ORDER";
+            });
         }
     </script>
 </body>
